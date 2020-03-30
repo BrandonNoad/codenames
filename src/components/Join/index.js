@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
-import { Redirect, useParams } from 'react-router-dom';
+import { Redirect, useLocation } from 'react-router-dom';
+
+const useQuery = () => new URLSearchParams(useLocation().search);
 
 const Join = () => {
-    const { gameId } = useParams();
+    const query = useQuery();
 
-    const [gameIdToJoin, setGameIdToJoin] = useState(gameId || '');
+    // May be null.
+    const initialGameId = query.get('gameId');
 
-    const [role, setRole] = useState('spymaster');
+    const [gameId, setGameId] = useState(initialGameId || '');
+
+    const [team, setTeam] = useState('red');
+
+    const [role, setRole] = useState(initialGameId === null ? 'operative' : 'spymaster');
 
     const [isReadyToPlay, setIsReadyToPlay] = useState(false);
 
-    const handleChangeGameIdToJoin = (e) => {
-        setGameIdToJoin(e.target.value);
+    const handleChangeGameId = (e) => {
+        setGameId(e.target.value);
+    };
+
+    const handleChangeTeam = (e) => {
+        setTeam(e.target.value);
     };
 
     const handleChangeRole = (e) => {
@@ -23,13 +34,32 @@ const Join = () => {
     };
 
     if (isReadyToPlay) {
-        return <Redirect to={`/game/${gameIdToJoin}/${role}`} />;
+        return <Redirect to={`/game/${gameId.trim()}?team=${team}&role=${role}`} />;
     }
 
     return (
         <>
             <label htmlFor="game-id">Game:</label>
-            <input id="game-id" value={gameIdToJoin} onChange={handleChangeGameIdToJoin} />
+            <input id="game-id" value={gameId} onChange={handleChangeGameId} />
+            <br />
+            <label>
+                <input
+                    type="radio"
+                    checked={team === 'red'}
+                    value="red"
+                    onChange={handleChangeTeam}
+                />
+                Red
+            </label>
+            <label>
+                <input
+                    type="radio"
+                    checked={team === 'blue'}
+                    value="blue"
+                    onChange={handleChangeTeam}
+                />
+                Blue
+            </label>
             <br />
             <label>
                 <input
@@ -50,8 +80,8 @@ const Join = () => {
                 Field Operative
             </label>
             <br />
-            <button onClick={handleClickPlayGame} disabled={gameIdToJoin === ''}>
-                Play Game!
+            <button onClick={handleClickPlayGame} disabled={gameId.trim() === ''}>
+                Let's Play!
             </button>
         </>
     );

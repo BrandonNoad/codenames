@@ -13,10 +13,10 @@ function App() {
                     <Link to="/">Codenames</Link>
                 </h1>
                 <Switch>
-                    <Route path="/join/:gameId?">
+                    <Route path="/join">
                         <Join />
                     </Route>
-                    <Route path="/game/:gameId/:role">
+                    <Route path="/game/:gameId">
                         <Game />
                     </Route>
                     <Route path="/">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 
 const getStyle = (secretIdentity) => {
     if (secretIdentity === null) {
@@ -45,7 +45,7 @@ const makeMockGame = async (gameId, role) => {
 
     return {
         gameId,
-        startingTeam: 'red',
+        turn: 'red',
         cards: words.map((word, idx) => ({
             codename: word,
             secretIdentity: role === 'operative' ? null : getSecretIdentity(idx),
@@ -54,8 +54,16 @@ const makeMockGame = async (gameId, role) => {
     };
 };
 
+const useQuery = () => new URLSearchParams(useLocation().search);
+
 const Game = () => {
-    const { gameId, role } = useParams();
+    const { gameId } = useParams();
+
+    const query = useQuery();
+
+    const team = query.get('team');
+
+    const role = query.get('role');
 
     const [game, setGame] = useState(null);
 
@@ -70,28 +78,32 @@ const Game = () => {
     }
 
     return (
-        <div style={{ display: 'flex', flexFlow: 'row wrap' }}>
-            {game.cards.map((card, idx) => {
-                const [color, backgroundColor] = getStyle(card.secretIdentity);
+        <>
+            <p>Team: {team === 'red' ? 'Red' : 'Blue'}</p>
+            <p>{game.turn === team ? "It's your turn!" : 'Wait for the other team to guess...'}</p>
+            <div style={{ display: 'flex', flexFlow: 'row wrap' }}>
+                {game.cards.map((card, idx) => {
+                    const [color, backgroundColor] = getStyle(card.secretIdentity);
 
-                return (
-                    <div
-                        key={idx}
-                        style={{
-                            color,
-                            padding: '8px',
-                            width: '160px',
-                            backgroundColor,
-                            border: '1px solid #222',
-                            borderRadius: '0.25rem',
-                            margin: '0 4px 4px 0'
-                        }}
-                    >
-                        {card.codename}
-                    </div>
-                );
-            })}
-        </div>
+                    return (
+                        <div
+                            key={idx}
+                            style={{
+                                color,
+                                padding: '8px',
+                                width: '160px',
+                                backgroundColor,
+                                border: '1px solid #222',
+                                borderRadius: '0.25rem',
+                                margin: '0 4px 4px 0'
+                            }}
+                        >
+                            {card.codename}
+                        </div>
+                    );
+                })}
+            </div>
+        </>
     );
 };
 
