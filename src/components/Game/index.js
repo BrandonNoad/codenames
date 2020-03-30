@@ -31,57 +31,47 @@ const counts = {
     assassin: 1
 };
 
-const getSecretIdentity = () => {
-    const rand = getRandomIntInclusive(1, 4);
+const getSecretIdentities = () => {
+    let numIdentitiesToAssign = 25;
 
-    if (rand === 1) {
-        if (counts.red === 0) {
-            return getSecretIdentity();
+    const results = [];
+
+    while (numIdentitiesToAssign > 0) {
+        const rand = getRandomIntInclusive(0, 24);
+
+        if (results[rand] === undefined) {
+            if (counts.red > 0) {
+                counts.red -= 1;
+                results[rand] = 'redAgent';
+            } else if (counts.blue > 0) {
+                counts.blue -= 1;
+                results[rand] = 'blueAgent';
+            } else if (counts.bystander > 0) {
+                counts.bystander -= 1;
+                results[rand] = 'innocentBystander';
+            } else {
+                counts.assassin -= 1;
+                results[rand] = 'assassin';
+            }
+
+            numIdentitiesToAssign -= 1;
         }
-
-        counts.red -= 1;
-
-        return 'redAgent';
     }
 
-    if (rand === 2) {
-        if (counts.blue === 0) {
-            return getSecretIdentity();
-        }
-
-        counts.blue -= 1;
-
-        return 'blueAgent';
-    }
-
-    if (rand === 3) {
-        if (counts.bystander === 0) {
-            return getSecretIdentity();
-        }
-
-        counts.bystander -= 1;
-
-        return 'innocentBystander';
-    }
-
-    if (counts.assassin === 0) {
-        return getSecretIdentity();
-    }
-
-    counts.assassin -= 1;
-
-    return 'assassin';
+    return results;
 };
 
 const makeMockGame = async (gameId, role) => {
     const { data: words } = await Axios.get('https://random-word-api.herokuapp.com/word?number=25');
+
+    const secretIdentities = getSecretIdentities();
 
     return {
         gameId,
         turn: 'red',
         cards: words.map((word, idx) => ({
             codename: word,
-            secretIdentity: role === 'operative' ? null : getSecretIdentity(idx),
+            secretIdentity: role === 'operative' ? null : secretIdentities[idx],
             isIdentityRevealed: false
         }))
     };
