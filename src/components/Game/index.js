@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
 
+const getRandomIntInclusive = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
 const getStyle = (secretIdentity) => {
     if (secretIdentity === null) {
         return ['#000', '#999'];
@@ -22,22 +24,53 @@ const getStyle = (secretIdentity) => {
     return ['#fff', 'black'];
 };
 
-const getSecretIdentity = (n) => {
-    if (n % 4 === 0) {
+const counts = {
+    red: 9,
+    blue: 8,
+    bystander: 7,
+    assassin: 1
+};
+
+const getSecretIdentity = () => {
+    const rand = getRandomIntInclusive(1, 4);
+
+    if (rand === 1) {
+        if (counts.red === 0) {
+            return getSecretIdentity();
+        }
+
+        counts.red -= 1;
+
         return 'redAgent';
     }
 
-    if (n % 4 === 1) {
+    if (rand === 2) {
+        if (counts.blue === 0) {
+            return getSecretIdentity();
+        }
+
+        counts.blue -= 1;
+
         return 'blueAgent';
     }
 
-    if (n % 4 === 2) {
+    if (rand === 3) {
+        if (counts.bystander === 0) {
+            return getSecretIdentity();
+        }
+
+        counts.bystander -= 1;
+
         return 'innocentBystander';
     }
 
-    if (n % 4 === 3) {
-        return 'assassin';
+    if (counts.assassin === 0) {
+        return getSecretIdentity();
     }
+
+    counts.assassin -= 1;
+
+    return 'assassin';
 };
 
 const makeMockGame = async (gameId, role) => {
