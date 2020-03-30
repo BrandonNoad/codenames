@@ -24,14 +24,14 @@ const getStyle = (secretIdentity) => {
     return ['#fff', 'black'];
 };
 
-const counts = {
-    red: 9,
-    blue: 8,
-    bystander: 7,
-    assassin: 1
-};
-
 const getSecretIdentities = () => {
+    const counts = {
+        red: 9,
+        blue: 8,
+        bystander: 7,
+        assassin: 1
+    };
+
     let numIdentitiesToAssign = 25;
 
     const results = [];
