@@ -107,7 +107,7 @@ const Game = () => {
             <Text mb={3}>
                 {game.turn === team ? "It's your turn!" : 'Wait for the other team to guess...'}
             </Text>
-            <Grid gap={2} columns={5}>
+            <Grid gap={2} columns={[2, 3, 5]}>
                 {game.cards.map((card, idx) => {
                     const [color, backgroundColor] = getStyle(card.secretIdentity);
 
@@ -117,8 +117,7 @@ const Game = () => {
                             p={3}
                             sx={{
                                 color,
-                                backgroundColor,
-                                width: '260px'
+                                backgroundColor
                             }}
                         >
                             {card.codename}
