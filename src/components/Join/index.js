@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Redirect, useLocation } from 'react-router-dom';
+import { Box, Flex, Button, Label, Input, Radio } from 'theme-ui';
 
 const useQuery = () => new URLSearchParams(useLocation().search);
 
@@ -29,7 +30,7 @@ const Join = () => {
         setRole(e.target.value);
     };
 
-    const handleClickPlayGame = (e) => {
+    const handleSubmit = (e) => {
         setIsReadyToPlay(true);
     };
 
@@ -38,52 +39,41 @@ const Join = () => {
     }
 
     return (
-        <>
-            <label htmlFor="game-id">Game:</label>
-            <input id="game-id" value={gameId} onChange={handleChangeGameId} />
-            <br />
-            <label>
-                <input
-                    type="radio"
-                    checked={team === 'red'}
-                    value="red"
-                    onChange={handleChangeTeam}
-                />
-                Red
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    checked={team === 'blue'}
-                    value="blue"
-                    onChange={handleChangeTeam}
-                />
-                Blue
-            </label>
-            <br />
-            <label>
-                <input
-                    type="radio"
-                    checked={role === 'spymaster'}
-                    value="spymaster"
-                    onChange={handleChangeRole}
-                />
-                Spymaster
-            </label>
-            <label>
-                <input
-                    type="radio"
-                    checked={role === 'operative'}
-                    value="operative"
-                    onChange={handleChangeRole}
-                />
-                Field Operative
-            </label>
-            <br />
-            <button onClick={handleClickPlayGame} disabled={gameId.trim() === ''}>
+        <Box as="form" onSubmit={handleSubmit} sx={{ width: '50%' }}>
+            <Label htmlFor="gameId">Game:</Label>
+            <Input mb={3} name="gameId" value={gameId} onChange={handleChangeGameId} />
+            <Flex mb={3}>
+                <Label>
+                    <Radio checked={team === 'red'} value="red" onChange={handleChangeTeam} />
+                    Red
+                </Label>
+                <Label>
+                    <Radio checked={team === 'blue'} value="blue" onChange={handleChangeTeam} />
+                    Blue
+                </Label>
+            </Flex>
+            <Flex mb={3}>
+                <Label>
+                    <Radio
+                        checked={role === 'spymaster'}
+                        value="spymaster"
+                        onChange={handleChangeRole}
+                    />
+                    Spymaster
+                </Label>
+                <Label>
+                    <Radio
+                        checked={role === 'operative'}
+                        value="operative"
+                        onChange={handleChangeRole}
+                    />
+                    Field Operative
+                </Label>
+            </Flex>
+            <Button type="submit" disabled={gameId.trim() === ''}>
                 Let's Play!
-            </button>
-        </>
+            </Button>
+        </Box>
     );
 };
 

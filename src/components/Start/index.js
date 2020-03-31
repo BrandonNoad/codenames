@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
+import { Button } from 'theme-ui';
 
 const game = { id: 123 };
 
@@ -34,9 +35,12 @@ const Start = () => {
 
     return (
         <>
-            <button onClick={handleClick}>New Game</button>
-            <br />
-            <Link to="/join">Join Game</Link>
+            <Button mr={2} onClick={handleClick}>
+                New Game
+            </Button>
+            <Button variant="secondary" as={Link} to="/join">
+                Join Game
+            </Button>
         </>
     );
 };

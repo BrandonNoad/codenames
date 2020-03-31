@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { Box, Heading, Text } from 'theme-ui';
 
 import Start from './components/Start';
 import Join from './components/Join';
@@ -7,11 +8,13 @@ import Game from './components/Game';
 
 function App() {
     return (
-        <>
+        <Box p={4}>
             <Router>
-                <h1 style={{ color: 'tomato' }}>
-                    <Link to="/">Codenames</Link>
-                </h1>
+                <Heading mb={3} as="h1">
+                    <Text variant="uppercase" as={Link} to="/">
+                        Codenames
+                    </Text>
+                </Heading>
                 <Switch>
                     <Route path="/join">
                         <Join />
@@ -24,7 +27,7 @@ function App() {
                     </Route>
                 </Switch>
             </Router>
-        </>
+        </Box>
     );
 }
 

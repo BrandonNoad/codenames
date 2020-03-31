@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
+import { Box, Grid, Text, Card } from 'theme-ui';
 
 const getRandomIntInclusive = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 const getStyle = (secretIdentity) => {
     if (secretIdentity === null) {
-        return ['#000', '#999'];
+        return ['greyPalette.8', 'yellowPalette.0'];
     }
 
     if (secretIdentity === 'redAgent') {
-        return ['#fff', 'red'];
+        return ['white', 'redPalette.0'];
     }
 
     if (secretIdentity === 'blueAgent') {
-        return ['#fff', 'blue'];
+        return ['white', 'bluePalette.0'];
     }
 
     if (secretIdentity === 'innocentBystander') {
-        return ['#000', '#F9EBEA'];
+        return ['greyPalette.8', 'warmGreyPalette.0'];
     }
 
-    return ['#fff', 'black'];
+    return ['white', 'greyPalette.9'];
 };
 
 const getSecretIdentities = () => {
@@ -101,32 +102,31 @@ const Game = () => {
     }
 
     return (
-        <>
-            <p>Team: {team === 'red' ? 'Red' : 'Blue'}</p>
-            <p>{game.turn === team ? "It's your turn!" : 'Wait for the other team to guess...'}</p>
-            <div style={{ display: 'flex', flexFlow: 'row wrap' }}>
+        <Box>
+            <Text>Team: {team === 'red' ? 'Red' : 'Blue'}</Text>
+            <Text mb={3}>
+                {game.turn === team ? "It's your turn!" : 'Wait for the other team to guess...'}
+            </Text>
+            <Grid gap={2} columns={5}>
                 {game.cards.map((card, idx) => {
                     const [color, backgroundColor] = getStyle(card.secretIdentity);
 
                     return (
-                        <div
+                        <Card
                             key={idx}
-                            style={{
+                            p={3}
+                            sx={{
                                 color,
-                                padding: '8px',
-                                width: '160px',
                                 backgroundColor,
-                                border: '1px solid #222',
-                                borderRadius: '0.25rem',
-                                margin: '0 4px 4px 0'
+                                width: '260px'
                             }}
                         >
                             {card.codename}
-                        </div>
+                        </Card>
                     );
                 })}
-            </div>
-        </>
+            </Grid>
+        </Box>
     );
 };
 
