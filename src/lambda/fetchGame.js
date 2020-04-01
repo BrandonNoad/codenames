@@ -17,24 +17,15 @@ exports.handler = async (event, context) => {
             throw Boom.methodNotAllowed();
         }
 
-        // -- Validate path.
+        // -- Validate query.
 
         const idSchema = Joi.number()
             .integer()
             .positive()
             .required();
 
-        const { error: pathError, value: gameId } = idSchema.validate(
-            event.path.slice('/fetchGame/'.length)
-        );
-
-        if (pathError !== undefined) {
-            throw Boom.boomify(pathError, { statusCode: 400 });
-        }
-
-        // -- Validate query.
-
         const querySchema = Joi.object({
+            gameId: idSchema,
             role: Joi.string()
                 .trim()
                 .lowercase()
@@ -55,7 +46,7 @@ exports.handler = async (event, context) => {
         );
 
         const results = await base('games')
-            .select({ filterByFormula: `{id} = ${gameId}` })
+            .select({ filterByFormula: `{id} = ${query.gameId}` })
             .firstPage();
 
         if (results.length !== 1) {

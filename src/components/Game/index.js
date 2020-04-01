@@ -55,10 +55,9 @@ const Game = () => {
         (async () => {
             const {
                 data: game
-            } = await Axios.get(
-                `${process.env.REACT_APP_BASE_URL}/.netlify/functions/fetchGame/${gameId}`,
-                { params: { role } }
-            );
+            } = await Axios.get(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/fetchGame`, {
+                params: { role, gameId }
+            });
 
             setGame(game);
         })();
