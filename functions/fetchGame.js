@@ -56884,23 +56884,12 @@ exports.handler = async (event, context) => {
     // -- Check HTTP method.
     if (event.httpMethod !== 'GET') {
       throw Boom.methodNotAllowed();
-    } // -- Validate path.
-
-
-    const idSchema = Joi.number().integer().positive().required();
-    const {
-      error: pathError,
-      value: gameId
-    } = idSchema.validate(event.path.slice('/fetchGame/'.length));
-
-    if (pathError !== undefined) {
-      throw Boom.boomify(pathError, {
-        statusCode: 400
-      });
     } // -- Validate query.
 
 
+    const idSchema = Joi.number().integer().positive().required();
     const querySchema = Joi.object({
+      gameId: idSchema,
       role: Joi.string().trim().lowercase().valid('spymaster', 'operative').required()
     });
     const {
@@ -56918,7 +56907,7 @@ exports.handler = async (event, context) => {
       apiKey: process.env.AIRTABLE_API_KEY
     }).base(process.env.AIRTABLE_API_BASE_ID);
     const results = await base('games').select({
-      filterByFormula: `{id} = ${gameId}`
+      filterByFormula: `{id} = ${query.gameId}`
     }).firstPage();
 
     if (results.length !== 1) {

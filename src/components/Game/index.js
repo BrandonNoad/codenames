@@ -53,11 +53,12 @@ const Game = () => {
 
     useEffect(() => {
         (async () => {
-            const {
-                data: game
-            } = await Axios.get(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/fetchGame`, {
-                params: { role, gameId }
-            });
+            const { data: game } = await Axios.get(
+                `${process.env.REACT_APP_BASE_URL}/.netlify/functions/fetchGame`,
+                {
+                    params: { role, gameId }
+                }
+            );
 
             setGame(game);
         })();
@@ -86,10 +87,10 @@ const Game = () => {
 
     return (
         <Box>
-            {/* <Text>Team: {team === 'red' ? 'Red' : 'Blue'}</Text>
-            <Text mb={3}>
-                {game.turn === team ? "It's your turn!" : 'Wait for the other team to guess...'}
-            </Text> */}
+            <Text
+                mb={3}
+                sx={{ fontWeight: 'bold' }}
+            >{`${game.turn.toUpperCase()} goes first!`}</Text>
             <Grid gap={2} columns={[2, 3, 5]}>
                 {game.cards.map((card, idx) => {
                     const [color, backgroundColor, backgroundColorHover] = getStyles(
