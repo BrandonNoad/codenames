@@ -1,24 +1,18 @@
 import React, { useState } from 'react';
 import { Link, Redirect } from 'react-router-dom';
 import { Button } from 'theme-ui';
-
-const game = { id: 123 };
-
-const createNewGame = async () =>
-    new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(game);
-        }, 1000);
-    });
+import Axios from 'axios';
 
 const Start = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [game, setGame] = useState(null);
 
-    const handleClick = async (e) => {
+    const handleClickNewGame = async (e) => {
         setIsLoading(true);
 
-        const game = await createNewGame();
+        const { data: game } = await Axios.post(
+            `${process.env.REACT_APP_BASE_URL}/.netlify/functions/createGame`
+        );
 
         setIsLoading(false);
 
@@ -35,7 +29,7 @@ const Start = () => {
 
     return (
         <>
-            <Button mr={2} onClick={handleClick}>
+            <Button mr={2} onClick={handleClickNewGame}>
                 New Game
             </Button>
             <Button variant="secondary" as={Link} to="/join">

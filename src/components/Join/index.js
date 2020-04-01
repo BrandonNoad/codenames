@@ -39,7 +39,7 @@ const Join = () => {
     }
 
     return (
-        <Box as="form" onSubmit={handleSubmit} sx={{ width: '50%' }}>
+        <Box as="form" onSubmit={handleSubmit} sx={{ width: ['100%', '75%', '50%'] }}>
             <Label htmlFor="gameId">Game:</Label>
             <Input mb={3} name="gameId" value={gameId} onChange={handleChangeGameId} />
             <Flex mb={3}>

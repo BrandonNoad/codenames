@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import { Box, Heading, Text } from 'theme-ui';
 
-import Start from './components/Start';
-import Join from './components/Join';
-import Game from './components/Game';
+import Start from '../Start';
+import Join from '../Join';
+import Game from '../Game';
 
 function App() {
     return (

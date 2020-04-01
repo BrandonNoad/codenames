@@ -3,79 +3,37 @@ import Axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
 import { Box, Grid, Text, Card } from 'theme-ui';
 
-const getRandomIntInclusive = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-const getStyle = (secretIdentity) => {
+const getStyles = (secretIdentity) => {
     if (secretIdentity === null) {
-        return ['greyPalette.8', 'yellowPalette.0'];
+        return ['greyPalette.8', 'yellowPalette.0', 'yellowPalette.1'];
     }
 
     if (secretIdentity === 'redAgent') {
-        return ['white', 'redPalette.0'];
+        return ['white', 'redPalette.0', 'redPalette.1'];
     }
 
     if (secretIdentity === 'blueAgent') {
-        return ['white', 'bluePalette.0'];
+        return ['white', 'bluePalette.0', 'bluePalette.1'];
     }
 
     if (secretIdentity === 'innocentBystander') {
-        return ['greyPalette.8', 'warmGreyPalette.0'];
+        return ['greyPalette.8', 'warmGreyPalette.0', 'warmGreyPalette.1'];
     }
 
-    return ['white', 'greyPalette.9'];
+    // assassin
+    return ['white', 'greyPalette.9', 'black'];
 };
 
-const getSecretIdentities = () => {
-    const counts = {
-        red: 9,
-        blue: 8,
-        bystander: 7,
-        assassin: 1
-    };
-
-    let numIdentitiesToAssign = 25;
-
-    const results = [];
-
-    while (numIdentitiesToAssign > 0) {
-        const rand = getRandomIntInclusive(0, 24);
-
-        if (results[rand] === undefined) {
-            if (counts.red > 0) {
-                counts.red -= 1;
-                results[rand] = 'redAgent';
-            } else if (counts.blue > 0) {
-                counts.blue -= 1;
-                results[rand] = 'blueAgent';
-            } else if (counts.bystander > 0) {
-                counts.bystander -= 1;
-                results[rand] = 'innocentBystander';
-            } else {
-                counts.assassin -= 1;
-                results[rand] = 'assassin';
-            }
-
-            numIdentitiesToAssign -= 1;
-        }
+const getCursorValue = (role, card) => {
+    if (role !== 'operative') {
+        return 'default';
     }
 
-    return results;
-};
+    if (card.isIdentityRevealed) {
+        return 'default';
+    }
 
-const makeMockGame = async (gameId, role) => {
-    const { data: words } = await Axios.get('https://random-word-api.herokuapp.com/word?number=25');
-
-    const secretIdentities = getSecretIdentities();
-
-    return {
-        gameId,
-        turn: 'red',
-        cards: words.map((word, idx) => ({
-            codename: word,
-            secretIdentity: role === 'operative' ? null : secretIdentities[idx],
-            isIdentityRevealed: false
-        }))
-    };
+    return 'pointer';
 };
 
 const useQuery = () => new URLSearchParams(useLocation().search);
@@ -87,40 +45,83 @@ const Game = () => {
 
     const team = query.get('team');
 
-    const role = query.get('role');
+    const role = query.get('role').toLowerCase();
 
     const [game, setGame] = useState(null);
 
+    const [numRefresh, setNumRefresh] = useState(0);
+
     useEffect(() => {
-        makeMockGame(gameId, role).then((game) => {
+        (async () => {
+            const {
+                data: game
+            } = await Axios.get(
+                `${process.env.REACT_APP_BASE_URL}/.netlify/functions/fetchGame/${gameId}`,
+                { params: { role } }
+            );
+
             setGame(game);
-        });
-    }, []);
+        })();
+    }, [gameId, role, numRefresh]);
 
     if (game === null) {
         return <p>Loading...</p>;
     }
 
+    const handleGuessFactory = (card) => async (e) => {
+        if (
+            role !== 'operative' ||
+            card.isIdentityRevealed ||
+            !window.confirm(`Are you sure you want to guess ${card.codename}?`)
+        ) {
+            return;
+        }
+
+        await Axios.post(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/guess`, {
+            gameId,
+            codename: card.codename
+        });
+
+        setNumRefresh(numRefresh + 1);
+    };
+
     return (
         <Box>
-            <Text>Team: {team === 'red' ? 'Red' : 'Blue'}</Text>
+            {/* <Text>Team: {team === 'red' ? 'Red' : 'Blue'}</Text>
             <Text mb={3}>
                 {game.turn === team ? "It's your turn!" : 'Wait for the other team to guess...'}
-            </Text>
+            </Text> */}
             <Grid gap={2} columns={[2, 3, 5]}>
                 {game.cards.map((card, idx) => {
-                    const [color, backgroundColor] = getStyle(card.secretIdentity);
+                    const [color, backgroundColor, backgroundColorHover] = getStyles(
+                        card.secretIdentity
+                    );
 
                     return (
                         <Card
-                            key={idx}
+                            key={card.codename}
                             p={3}
                             sx={{
-                                color,
-                                backgroundColor
+                                backgroundColor,
+                                textAlign: 'center',
+                                cursor: getCursorValue(role, card),
+                                '&:hover': {
+                                    backgroundColor: backgroundColorHover
+                                }
                             }}
+                            onDoubleClick={handleGuessFactory(card)}
                         >
-                            {card.codename}
+                            <Text
+                                variant="uppercase"
+                                sx={{
+                                    color,
+                                    fontWeight: 'semibold',
+                                    fontSize: 2,
+                                    display: 'inline-block'
+                                }}
+                            >
+                                {card.isIdentityRevealed ? '' : card.codename}
+                            </Text>
                         </Card>
                     );
                 })}

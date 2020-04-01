@@ -83,7 +83,7 @@ const theme = {
     },
     letterSpacings: {
         body: 'normal',
-        uppercase: '0.025em'
+        uppercase: '0.02em'
     },
     lineHeights: {
         body: 1.5,
