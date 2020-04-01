@@ -112,7 +112,7 @@ const Game = () => {
                 mb={3}
                 sx={{ fontWeight: 'bold' }}
             >{`${game.turn.toUpperCase()} goes first!`}</Text>
-            <Grid mb={3} gap={2} columns={[2, 3, 5]}>
+            <Grid mb={4} gap={2} columns={[2, 3, 5]}>
                 {game.cards.map((card, idx) => {
                     const [color, backgroundColor, backgroundColorHover] = getStyles(
                         card.secretIdentity
