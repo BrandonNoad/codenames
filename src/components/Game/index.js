@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
-import { Box, Grid, Text, Card } from 'theme-ui';
+import { Box, Grid, Flex, Text, Card } from 'theme-ui';
 
 const getStyles = (secretIdentity) => {
     if (secretIdentity === null) {
@@ -72,7 +72,7 @@ const Game = () => {
         if (
             role !== 'operative' ||
             card.isIdentityRevealed ||
-            !window.confirm(`Are you sure you want to guess ${card.codename}?`)
+            !window.confirm(`Are you sure you want to guess ${card.codename.toUpperCase()}?`)
         ) {
             return;
         }
@@ -85,13 +85,34 @@ const Game = () => {
         setNumRefresh(numRefresh + 1);
     };
 
+    const cardsRemaining = {
+        redAgent: game.turn === 'red' ? 9 : 8,
+        blueAgent: game.turn === 'blue' ? 9 : 8,
+        innocentBystander: 7,
+        assassin: 1
+    };
+
+    game.cards.forEach((card) => {
+        if (card.isIdentityRevealed) {
+            if (card.secretIdentity === 'redAgent') {
+                cardsRemaining.redAgent -= 1;
+            } else if (card.secretIdentity === 'blueAgent') {
+                cardsRemaining.blueAgent -= 1;
+            } else if (card.secretIdentity === 'innocentBystander') {
+                cardsRemaining.innocentBystander -= 1;
+            } else {
+                cardsRemaining.assassin -= 1;
+            }
+        }
+    });
+
     return (
         <Box>
             <Text
                 mb={3}
                 sx={{ fontWeight: 'bold' }}
             >{`${game.turn.toUpperCase()} goes first!`}</Text>
-            <Grid gap={2} columns={[2, 3, 5]}>
+            <Grid mb={3} gap={2} columns={[2, 3, 5]}>
                 {game.cards.map((card, idx) => {
                     const [color, backgroundColor, backgroundColorHover] = getStyles(
                         card.secretIdentity
@@ -126,6 +147,74 @@ const Game = () => {
                     );
                 })}
             </Grid>
+            <Box sx={{ margin: 'auto' }}>
+                <Grid gap={2} columns={[2, 3, 5]}>
+                    {cardsRemaining.redAgent > 0 && (
+                        <Card
+                            p={3}
+                            sx={{
+                                backgroundColor: 'redPalette.0',
+                                textAlign: 'center',
+                                '&:hover': {
+                                    backgroundColor: 'redPalette.1'
+                                }
+                            }}
+                        >
+                            <Text sx={{ color: 'white' }}>{`${cardsRemaining.redAgent} ${
+                                cardsRemaining.redAgent === 1 ? 'card' : 'cards'
+                            }`}</Text>
+                        </Card>
+                    )}
+                    {cardsRemaining.innocentBystander > 0 && (
+                        <Card
+                            p={3}
+                            sx={{
+                                backgroundColor: 'warmGreyPalette.0',
+                                textAlign: 'center',
+                                '&:hover': {
+                                    backgroundColor: 'warmGreyPalette.1'
+                                }
+                            }}
+                        >
+                            <Text sx={{ color: 'greyPalette.8' }}>{`${
+                                cardsRemaining.innocentBystander
+                            } ${cardsRemaining.innocentBystander === 1 ? 'card' : 'cards'}`}</Text>
+                        </Card>
+                    )}
+                    {cardsRemaining.assassin > 0 && (
+                        <Card
+                            p={3}
+                            sx={{
+                                backgroundColor: 'greyPalette.9',
+                                textAlign: 'center',
+                                '&:hover': {
+                                    backgroundColor: 'black'
+                                }
+                            }}
+                        >
+                            <Text sx={{ color: 'white' }}>{`${cardsRemaining.assassin} ${
+                                cardsRemaining.assassin === 1 ? 'card' : 'cards'
+                            }`}</Text>
+                        </Card>
+                    )}
+                    {cardsRemaining.blueAgent > 0 && (
+                        <Card
+                            p={3}
+                            sx={{
+                                backgroundColor: 'bluePalette.0',
+                                textAlign: 'center',
+                                '&:hover': {
+                                    backgroundColor: 'bluePalette.1'
+                                }
+                            }}
+                        >
+                            <Text sx={{ color: 'white' }}>{`${cardsRemaining.blueAgent} ${
+                                cardsRemaining.blueAgent === 1 ? 'card' : 'cards'
+                            }`}</Text>
+                        </Card>
+                    )}
+                </Grid>
+            </Box>
         </Box>
     );
 };
