@@ -147,74 +147,78 @@ const Game = () => {
                     );
                 })}
             </Grid>
-            <Box sx={{ margin: 'auto' }}>
-                <Grid gap={2} columns={[2, 3, 5]}>
-                    {cardsRemaining.redAgent > 0 && (
-                        <Card
-                            p={3}
-                            sx={{
-                                backgroundColor: 'redPalette.0',
-                                textAlign: 'center',
-                                '&:hover': {
-                                    backgroundColor: 'redPalette.1'
-                                }
-                            }}
-                        >
-                            <Text sx={{ color: 'white' }}>{`${cardsRemaining.redAgent} ${
-                                cardsRemaining.redAgent === 1 ? 'card' : 'cards'
-                            }`}</Text>
-                        </Card>
-                    )}
-                    {cardsRemaining.innocentBystander > 0 && (
-                        <Card
-                            p={3}
-                            sx={{
-                                backgroundColor: 'warmGreyPalette.0',
-                                textAlign: 'center',
-                                '&:hover': {
-                                    backgroundColor: 'warmGreyPalette.1'
-                                }
-                            }}
-                        >
-                            <Text sx={{ color: 'greyPalette.8' }}>{`${
-                                cardsRemaining.innocentBystander
-                            } ${cardsRemaining.innocentBystander === 1 ? 'card' : 'cards'}`}</Text>
-                        </Card>
-                    )}
-                    {cardsRemaining.assassin > 0 && (
-                        <Card
-                            p={3}
-                            sx={{
-                                backgroundColor: 'greyPalette.9',
-                                textAlign: 'center',
-                                '&:hover': {
-                                    backgroundColor: 'black'
-                                }
-                            }}
-                        >
-                            <Text sx={{ color: 'white' }}>{`${cardsRemaining.assassin} ${
-                                cardsRemaining.assassin === 1 ? 'card' : 'cards'
-                            }`}</Text>
-                        </Card>
-                    )}
-                    {cardsRemaining.blueAgent > 0 && (
-                        <Card
-                            p={3}
-                            sx={{
-                                backgroundColor: 'bluePalette.0',
-                                textAlign: 'center',
-                                '&:hover': {
-                                    backgroundColor: 'bluePalette.1'
-                                }
-                            }}
-                        >
-                            <Text sx={{ color: 'white' }}>{`${cardsRemaining.blueAgent} ${
-                                cardsRemaining.blueAgent === 1 ? 'card' : 'cards'
-                            }`}</Text>
-                        </Card>
-                    )}
-                </Grid>
-            </Box>
+            {role === 'operative' && (
+                <Box>
+                    <Grid gap={2} columns={[2, 3, 5]}>
+                        {cardsRemaining.redAgent > 0 && (
+                            <Card
+                                p={3}
+                                sx={{
+                                    backgroundColor: 'redPalette.0',
+                                    textAlign: 'center',
+                                    '&:hover': {
+                                        backgroundColor: 'redPalette.1'
+                                    }
+                                }}
+                            >
+                                <Text sx={{ color: 'white' }}>{`${cardsRemaining.redAgent} ${
+                                    cardsRemaining.redAgent === 1 ? 'card' : 'cards'
+                                }`}</Text>
+                            </Card>
+                        )}
+                        {cardsRemaining.innocentBystander > 0 && (
+                            <Card
+                                p={3}
+                                sx={{
+                                    backgroundColor: 'warmGreyPalette.0',
+                                    textAlign: 'center',
+                                    '&:hover': {
+                                        backgroundColor: 'warmGreyPalette.1'
+                                    }
+                                }}
+                            >
+                                <Text sx={{ color: 'greyPalette.8' }}>{`${
+                                    cardsRemaining.innocentBystander
+                                } ${
+                                    cardsRemaining.innocentBystander === 1 ? 'card' : 'cards'
+                                }`}</Text>
+                            </Card>
+                        )}
+                        {cardsRemaining.assassin > 0 && (
+                            <Card
+                                p={3}
+                                sx={{
+                                    backgroundColor: 'greyPalette.9',
+                                    textAlign: 'center',
+                                    '&:hover': {
+                                        backgroundColor: 'black'
+                                    }
+                                }}
+                            >
+                                <Text sx={{ color: 'white' }}>{`${cardsRemaining.assassin} ${
+                                    cardsRemaining.assassin === 1 ? 'card' : 'cards'
+                                }`}</Text>
+                            </Card>
+                        )}
+                        {cardsRemaining.blueAgent > 0 && (
+                            <Card
+                                p={3}
+                                sx={{
+                                    backgroundColor: 'bluePalette.0',
+                                    textAlign: 'center',
+                                    '&:hover': {
+                                        backgroundColor: 'bluePalette.1'
+                                    }
+                                }}
+                            >
+                                <Text sx={{ color: 'white' }}>{`${cardsRemaining.blueAgent} ${
+                                    cardsRemaining.blueAgent === 1 ? 'card' : 'cards'
+                                }`}</Text>
+                            </Card>
+                        )}
+                    </Grid>
+                </Box>
+            )}
         </Box>
     );
 };
