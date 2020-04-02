@@ -1,7 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
 import { Box, Grid, Flex, Text, Card } from 'theme-ui';
+
+const NUM_SECONDS_IN_AN_HOUR = 60 * 60;
+
+const FETCH_INTERVAL_IN_SECONDS = 10;
+
+const FETCH_LIMIT = NUM_SECONDS_IN_AN_HOUR / FETCH_INTERVAL_IN_SECONDS;
+
+const fetchGame = (gameId, role) =>
+    Axios.get(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/fetchGame`, {
+        params: { gameId, role }
+    });
 
 const getStyles = (secretIdentity) => {
     if (secretIdentity === null) {
@@ -39,6 +50,8 @@ const getCursorValue = (role, card) => {
 const useQuery = () => new URLSearchParams(useLocation().search);
 
 const Game = () => {
+    const numFetchesRef = useRef(0);
+
     const { gameId } = useParams();
 
     const query = useQuery();
@@ -49,20 +62,27 @@ const Game = () => {
 
     const [game, setGame] = useState(null);
 
-    const [numRefresh, setNumRefresh] = useState(0);
-
     useEffect(() => {
-        (async () => {
-            const { data: game } = await Axios.get(
-                `${process.env.REACT_APP_BASE_URL}/.netlify/functions/fetchGame`,
-                {
-                    params: { role, gameId }
-                }
-            );
+        const fetchAndSetGame = async () => {
+            const { data: game } = await fetchGame(gameId, role);
 
             setGame(game);
-        })();
-    }, [gameId, role, numRefresh]);
+        };
+
+        fetchAndSetGame();
+
+        const intervalId = setInterval(() => {
+            fetchAndSetGame();
+
+            numFetchesRef.current++;
+
+            if (numFetchesRef.current >= FETCH_LIMIT) {
+                clearInterval(intervalId);
+            }
+        }, 10 * 1000);
+
+        return () => clearInterval(intervalId);
+    }, [gameId, role]);
 
     if (game === null) {
         return <p>Loading...</p>;
@@ -82,12 +102,14 @@ const Game = () => {
             codename: card.codename
         });
 
-        setNumRefresh(numRefresh + 1);
+        const { data: game } = await fetchGame(gameId, role);
+
+        setGame(game);
     };
 
     const cardsRemaining = {
-        redAgent: game.turn === 'red' ? 9 : 8,
-        blueAgent: game.turn === 'blue' ? 9 : 8,
+        redAgent: game.startingTeam === 'red' ? 9 : 8,
+        blueAgent: game.startingTeam === 'blue' ? 9 : 8,
         innocentBystander: 7,
         assassin: 1
     };
@@ -111,7 +133,7 @@ const Game = () => {
             <Text
                 mb={3}
                 sx={{ fontWeight: 'bold' }}
-            >{`${game.turn.toUpperCase()} goes first!`}</Text>
+            >{`${game.startingTeam.toUpperCase()} goes first!`}</Text>
             <Grid mb={4} gap={2} columns={[2, 3, 5]}>
                 {game.cards.map((card, idx) => {
                     const [color, backgroundColor, backgroundColorHover] = getStyles(

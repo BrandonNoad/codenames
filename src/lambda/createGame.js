@@ -56,7 +56,7 @@ exports.handler = async (event, context) => {
             throw Boom.methodNotAllowed();
         }
 
-        const turn = getRandomIntInclusive({ max: 1 }) === 0 ? 'red' : 'blue';
+        const startingTeam = getRandomIntInclusive({ max: 1 }) === 0 ? 'red' : 'blue';
 
         const NUM_WORDS = 403;
 
@@ -85,10 +85,11 @@ exports.handler = async (event, context) => {
             throw new Error('Bad Implementation!');
         }
 
-        const secretIdentities = generateSecretIdentities(turn);
+        const secretIdentities = generateSecretIdentities(startingTeam);
 
         const meta = {
-            turn,
+            startingTeam,
+            turn: startingTeam,
             cards: results.map((result, idx) => {
                 const { word } = result.fields;
 

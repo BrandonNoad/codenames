@@ -55,11 +55,11 @@ exports.handler = async (event, context) => {
 
         const result = results[0];
 
-        const { turn, cards } = JSON.parse(result.fields.meta);
+        const { cards, ...rest } = JSON.parse(result.fields.meta);
 
         const game = {
             id: result.fields.id,
-            turn,
+            ...rest,
             cards:
                 query.role === 'spymaster'
                     ? cards

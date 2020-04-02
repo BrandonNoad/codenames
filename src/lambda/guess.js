@@ -60,13 +60,13 @@ exports.handler = async (event, context) => {
 
         match.isIdentityRevealed = true;
 
-        const updateResult = await base('games').update(fetchResult.id, {
+        await base('games').update(fetchResult.id, {
             meta: JSON.stringify(meta)
         });
 
         return {
             statusCode: 200,
-            body: JSON.stringify(updateResult)
+            body: 'success'
         };
     } catch (err) {
         if (Boom.isBoom(err)) {
