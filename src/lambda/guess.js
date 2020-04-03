@@ -26,6 +26,11 @@ exports.handler = async (event, context) => {
 
         const bodySchema = Joi.object({
             gameId: idSchema,
+            team: Joi.string()
+                .trim()
+                .lowercase()
+                .valid('red', 'blue')
+                .required(),
             codename: Joi.string()
                 .trim()
                 .lowercase()
@@ -60,13 +65,17 @@ exports.handler = async (event, context) => {
 
         match.isIdentityRevealed = true;
 
+        const isGuessCorrect =
+            (match.secretIdentity === 'redAgent' && body.team === 'red') ||
+            (match.secretIdentity === 'blueAgent' && body.team === 'blue');
+
         await base('games').update(fetchResult.id, {
             meta: JSON.stringify(meta)
         });
 
         return {
             statusCode: 200,
-            body: 'success'
+            body: JSON.stringify({ isGuessCorrect })
         };
     } catch (err) {
         if (Boom.isBoom(err)) {

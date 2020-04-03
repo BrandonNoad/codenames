@@ -16,6 +16,11 @@ const fetchGame = (gameId, role) =>
         params: { gameId, role }
     });
 
+const toggleTurn = (gameId) =>
+    Axios.post(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/toggleTurn`, {
+        gameId
+    });
+
 const useQuery = () => new URLSearchParams(useLocation().search);
 
 const Game = () => {
@@ -70,14 +75,22 @@ const Game = () => {
             return;
         }
 
-        await Axios.post(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/guess`, {
-            gameId,
-            codename
-        });
+        const { data: guessData } = await Axios.post(
+            `${process.env.REACT_APP_BASE_URL}/.netlify/functions/guess`,
+            {
+                gameId,
+                team,
+                codename
+            }
+        );
 
-        const { data } = await fetchGame(gameId, role);
+        if (!guessData.isGuessCorrect) {
+            await toggleTurn(gameId);
+        }
 
-        setGame(data);
+        const { data: gameData } = await fetchGame(gameId, role);
+
+        setGame(gameData);
     };
 
     const handleClickEndTurn = async (e) => {
@@ -85,9 +98,7 @@ const Game = () => {
             return;
         }
 
-        await Axios.post(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/toggleTurn`, {
-            gameId
-        });
+        await toggleTurn(gameId);
 
         const { data } = await fetchGame(gameId, role);
 
