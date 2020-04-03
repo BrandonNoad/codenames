@@ -32,7 +32,7 @@ const Start = () => {
             <Button mr={2} onClick={handleClickNewGame}>
                 New Game
             </Button>
-            <Button variant="secondary" as={Link} to="/join">
+            <Button as={Link} to="/join">
                 Join Game
             </Button>
         </>

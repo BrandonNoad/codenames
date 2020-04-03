@@ -5,13 +5,13 @@ const baseColors = {
 };
 
 const colorPalettes = {
-    redPalette: ['#BA2525', '#A61B1B'],
+    redPalette: ['#BA2525', '#A61B1B', '#911111'],
 
-    bluePalette: ['#2680C2', '#186FAF'],
+    bluePalette: ['#2680C2', '#186FAF', '#0F609B'],
 
-    yellowPalette: ['#FCEFC7', '#F8E3A3'],
+    yellowPalette: ['#FCEFC7', '#F8E3A3', '#F9DA8B'],
 
-    warmGreyPalette: ['#D3CEC4', '#B8B2A7'],
+    warmGreyPalette: ['#D3CEC4', '#B8B2A7', '#A39E93'],
 
     greyPalette: [
         '#F7F7F7',
@@ -23,7 +23,8 @@ const colorPalettes = {
         '#626262',
         '#515151',
         '#3B3B3B',
-        '#222222'
+        '#222222',
+        '#111111'
     ]
 };
 
@@ -50,12 +51,23 @@ const theme = {
         ...baseColors,
         ...colorPalettes,
         text: colorPalettes.greyPalette[8],
-        background: colorPalettes.greyPalette[0],
-        primary: colorPalettes.redPalette[0],
-        secondary: colorPalettes.bluePalette[0],
+        background: baseColors.white,
+        primary: colorPalettes.greyPalette[9],
+        hover: colorPalettes.greyPalette[10],
+        secondary: colorPalettes.greyPalette[9],
         accent: colorPalettes.greyPalette[1],
         highlight: colorPalettes.greyPalette[1],
-        muted: colorPalettes.greyPalette[1]
+        muted: colorPalettes.greyPalette[1],
+        modes: {
+            red: {
+                primary: colorPalettes.redPalette[0],
+                hover: colorPalettes.redPalette[1]
+            },
+            blue: {
+                primary: colorPalettes.bluePalette[0],
+                hover: colorPalettes.bluePalette[1]
+            }
+        }
     },
 
     fonts: {
@@ -129,15 +141,7 @@ const theme = {
             backgroundColor: 'primary',
             color: 'white',
             '&:hover': {
-                backgroundColor: 'primaryPalette.6'
-            }
-        },
-        secondary: {
-            ...commonButtonStyles,
-            backgroundColor: 'secondary',
-            color: 'white',
-            '&:hover': {
-                backgroundColor: 'secondaryPalette.6'
+                color: '#dedede'
             }
         },
         outline: {
@@ -146,9 +150,9 @@ const theme = {
             color: 'primary',
             borderWidth: '2px',
             borderStyle: 'solid',
-            borderColor: 'primaryPalette.4',
+            borderColor: 'primary',
             '&:hover': {
-                backgroundColor: 'primaryPalette.6',
+                backgroundColor: 'primary',
                 color: 'white',
                 borderColor: 'transparent'
             }

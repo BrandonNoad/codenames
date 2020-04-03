@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Axios from 'axios';
 import { useParams, useLocation } from 'react-router-dom';
-import { Box, Grid, Flex, Text, Card } from 'theme-ui';
+import { useColorMode, Box, Flex, Grid, Text, Button } from 'theme-ui';
+
+import PlayingCard, { AgentCardPile } from '../PlayingCard';
 
 const NUM_SECONDS_IN_AN_HOUR = 60 * 60;
 
@@ -14,42 +16,11 @@ const fetchGame = (gameId, role) =>
         params: { gameId, role }
     });
 
-const getStyles = (secretIdentity) => {
-    if (secretIdentity === null) {
-        return ['greyPalette.8', 'yellowPalette.0', 'yellowPalette.1'];
-    }
-
-    if (secretIdentity === 'redAgent') {
-        return ['white', 'redPalette.0', 'redPalette.1'];
-    }
-
-    if (secretIdentity === 'blueAgent') {
-        return ['white', 'bluePalette.0', 'bluePalette.1'];
-    }
-
-    if (secretIdentity === 'innocentBystander') {
-        return ['greyPalette.8', 'warmGreyPalette.0', 'warmGreyPalette.1'];
-    }
-
-    // assassin
-    return ['white', 'greyPalette.9', 'black'];
-};
-
-const getCursorValue = (role, card) => {
-    if (role !== 'operative') {
-        return 'default';
-    }
-
-    if (card.isIdentityRevealed) {
-        return 'default';
-    }
-
-    return 'pointer';
-};
-
 const useQuery = () => new URLSearchParams(useLocation().search);
 
 const Game = () => {
+    const [, setColorMode] = useColorMode();
+
     const numFetchesRef = useRef(0);
 
     const { gameId } = useParams();
@@ -61,6 +32,12 @@ const Game = () => {
     const role = query.get('role').toLowerCase();
 
     const [game, setGame] = useState(null);
+
+    useEffect(() => {
+        if (game !== null) {
+            setColorMode(game.turn);
+        }
+    }, [game, setColorMode]);
 
     useEffect(() => {
         const fetchAndSetGame = async () => {
@@ -88,25 +65,36 @@ const Game = () => {
         return <p>Loading...</p>;
     }
 
-    const handleGuessFactory = (card) => async (e) => {
-        if (
-            role !== 'operative' ||
-            card.isIdentityRevealed ||
-            !window.confirm(`Are you sure you want to guess ${card.codename.toUpperCase()}?`)
-        ) {
+    const handleGuessFactory = ({ codename }) => async (e) => {
+        if (!window.confirm(`Are you sure you want to guess ${codename.toUpperCase()}?`)) {
             return;
         }
 
         await Axios.post(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/guess`, {
             gameId,
-            codename: card.codename
+            codename
         });
 
-        const { data: game } = await fetchGame(gameId, role);
+        const { data } = await fetchGame(gameId, role);
 
-        setGame(game);
+        setGame(data);
     };
 
+    const handleClickEndTurn = async (e) => {
+        if (!window.confirm(`Are you sure you want to end your turn?`)) {
+            return;
+        }
+
+        await Axios.post(`${process.env.REACT_APP_BASE_URL}/.netlify/functions/toggleTurn`, {
+            gameId
+        });
+
+        const { data } = await fetchGame(gameId, role);
+
+        setGame(data);
+    };
+
+    // TODO: improve this!!
     const cardsRemaining = {
         redAgent: game.startingTeam === 'red' ? 9 : 8,
         blueAgent: game.startingTeam === 'blue' ? 9 : 8,
@@ -130,113 +118,77 @@ const Game = () => {
 
     return (
         <Box>
-            <Text
-                mb={3}
-                sx={{ fontWeight: 'bold' }}
-            >{`${game.startingTeam.toUpperCase()} goes first!`}</Text>
-            <Grid mb={4} gap={2} columns={[2, 3, 5]}>
-                {game.cards.map((card, idx) => {
-                    const [color, backgroundColor, backgroundColorHover] = getStyles(
-                        card.secretIdentity
-                    );
-
-                    return (
-                        <Card
-                            key={card.codename}
-                            p={3}
-                            sx={{
-                                backgroundColor,
-                                textAlign: 'center',
-                                cursor: getCursorValue(role, card),
-                                '&:hover': {
-                                    backgroundColor: backgroundColorHover
-                                }
-                            }}
-                            onDoubleClick={handleGuessFactory(card)}
-                        >
-                            <Text
-                                variant="uppercase"
-                                sx={{
-                                    color,
-                                    fontWeight: 'semibold',
-                                    fontSize: 2,
-                                    display: 'inline-block'
-                                }}
-                            >
-                                {card.isIdentityRevealed ? '' : card.codename}
-                            </Text>
-                        </Card>
-                    );
-                })}
+            <Flex mb={3} sx={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                {game.turn === team ? (
+                    <Text mr={2} sx={{ fontWeight: 'bold' }}>
+                        <Text variant="uppercase" sx={{ display: 'inline', color: 'primary' }}>
+                            {game.turn}
+                        </Text>
+                        , it's your turn!
+                    </Text>
+                ) : (
+                    <Text mr={2} sx={{ fontWeight: 'bold' }}>
+                        Wait for
+                        <Text variant="uppercase" sx={{ display: 'inline', color: 'primary' }}>
+                            {` ${game.turn} `}
+                        </Text>
+                        to finish guessing...
+                    </Text>
+                )}
+                {role === 'operative' && game.turn === team ? (
+                    <Button
+                        sx={{
+                            boxShadow: 'none',
+                            color: 'primary',
+                            backgroundColor: 'transparent',
+                            '&:hover': {
+                                color: 'primary',
+                                backgroundColor: 'greyPalette.0'
+                            }
+                        }}
+                        onClick={handleClickEndTurn}
+                    >
+                        End Turn
+                    </Button>
+                ) : null}
+            </Flex>
+            <Grid mb={4} gap={3} columns={[2, 3, 5]}>
+                {game.cards.map((card) => (
+                    <PlayingCard
+                        key={card.codename}
+                        {...card}
+                        isYourTurn={game.turn === team}
+                        role={role}
+                        onGuess={handleGuessFactory(card)}
+                    />
+                ))}
             </Grid>
             {role === 'operative' && (
                 <Box>
                     <Grid gap={2} columns={[2, 3, 5]}>
                         {cardsRemaining.redAgent > 0 && (
-                            <Card
-                                p={3}
-                                sx={{
-                                    backgroundColor: 'redPalette.0',
-                                    textAlign: 'center',
-                                    '&:hover': {
-                                        backgroundColor: 'redPalette.1'
-                                    }
-                                }}
-                            >
-                                <Text sx={{ color: 'white' }}>{`${cardsRemaining.redAgent} ${
-                                    cardsRemaining.redAgent === 1 ? 'card' : 'cards'
-                                }`}</Text>
-                            </Card>
-                        )}
-                        {cardsRemaining.innocentBystander > 0 && (
-                            <Card
-                                p={3}
-                                sx={{
-                                    backgroundColor: 'warmGreyPalette.0',
-                                    textAlign: 'center',
-                                    '&:hover': {
-                                        backgroundColor: 'warmGreyPalette.1'
-                                    }
-                                }}
-                            >
-                                <Text sx={{ color: 'greyPalette.8' }}>{`${
-                                    cardsRemaining.innocentBystander
-                                } ${
-                                    cardsRemaining.innocentBystander === 1 ? 'card' : 'cards'
-                                }`}</Text>
-                            </Card>
-                        )}
-                        {cardsRemaining.assassin > 0 && (
-                            <Card
-                                p={3}
-                                sx={{
-                                    backgroundColor: 'greyPalette.9',
-                                    textAlign: 'center',
-                                    '&:hover': {
-                                        backgroundColor: 'black'
-                                    }
-                                }}
-                            >
-                                <Text sx={{ color: 'white' }}>{`${cardsRemaining.assassin} ${
-                                    cardsRemaining.assassin === 1 ? 'card' : 'cards'
-                                }`}</Text>
-                            </Card>
+                            <AgentCardPile
+                                secretIdentity="redAgent"
+                                numCards={cardsRemaining.redAgent}
+                            />
                         )}
                         {cardsRemaining.blueAgent > 0 && (
-                            <Card
-                                p={3}
-                                sx={{
-                                    backgroundColor: 'bluePalette.0',
-                                    textAlign: 'center',
-                                    '&:hover': {
-                                        backgroundColor: 'bluePalette.1'
-                                    }
-                                }}
-                            >
-                                <Text sx={{ color: 'white' }}>{`${cardsRemaining.blueAgent} ${
-                                    cardsRemaining.blueAgent === 1 ? 'card' : 'cards'
-                                }`}</Text>
-                            </Card>
+                            <AgentCardPile
+                                secretIdentity="blueAgent"
+                                numCards={cardsRemaining.blueAgent}
+                            />
+                        )}
+                        {cardsRemaining.innocentBystander > 0 && (
+                            <AgentCardPile
+                                secretIdentity="innocentBystander"
+                                numCards={cardsRemaining.innocentBystander}
+                            />
+                        )}
+                        {cardsRemaining.assassin > 0 && (
+                            <AgentCardPile
+                                secretIdentity="assassin"
+                                numCards={cardsRemaining.assassin}
+                            />
                         )}
                     </Grid>
                 </Box>

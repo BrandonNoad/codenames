@@ -40,8 +40,10 @@ const Join = () => {
 
     return (
         <Box as="form" onSubmit={handleSubmit} sx={{ width: ['100%', '75%', '50%'] }}>
-            <Label htmlFor="gameId">Game:</Label>
+            <Label htmlFor="gameId">Game Code:</Label>
             <Input mb={3} name="gameId" value={gameId} onChange={handleChangeGameId} />
+
+            <Label>Team:</Label>
             <Flex mb={3}>
                 <Label>
                     <Radio checked={team === 'red'} value="red" onChange={handleChangeTeam} />
@@ -52,6 +54,7 @@ const Join = () => {
                     Blue
                 </Label>
             </Flex>
+            <Label>Role:</Label>
             <Flex mb={3}>
                 <Label>
                     <Radio
