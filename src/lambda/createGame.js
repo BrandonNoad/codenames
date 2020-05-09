@@ -56,7 +56,7 @@ exports.handler = async (event, context) => {
             throw Boom.methodNotAllowed();
         }
 
-        const startingTeam = getRandomIntInclusive({ max: 1 }) === 0 ? 'red' : 'blue';
+        const startingTeam = Date.now() % 2 === 0 ? 'red' : 'blue';
 
         const NUM_WORDS = 403;
 
